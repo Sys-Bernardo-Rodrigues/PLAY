@@ -13,8 +13,11 @@ function hasValidTokenFormat(token: string): boolean {
 // Rotas públicas que não precisam de autenticação
 const publicRoutes = ["/", "/player", "/kiosk", "/api/public"];
 
-// Rotas de API públicas
-const publicApiRoutes = ["/api/public"];
+// Rotas de API públicas (acessíveis sem autenticação)
+const publicApiRoutes = [
+  "/api/public",
+  "/api/videos", // Permitir acesso aos vídeos para player e kiosk
+];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -22,9 +25,13 @@ export function middleware(request: NextRequest) {
   // Verificar se é uma rota pública
   const isPublicRoute = publicRoutes.some((route) => pathname === route || pathname.startsWith(route));
   const isPublicApiRoute = publicApiRoutes.some((route) => pathname.startsWith(route));
+  
+  // Permitir acesso público a vídeos e thumbnails (para player e kiosk)
+  // Formato: /api/videos/[id] ou /api/videos/[id]/thumbnail
+  const isVideoRoute = /^\/api\/videos\/\d+(\/thumbnail)?$/.test(pathname);
 
   // Permitir rotas públicas
-  if (isPublicRoute || isPublicApiRoute) {
+  if (isPublicRoute || isPublicApiRoute || isVideoRoute) {
     return NextResponse.next();
   }
 
@@ -38,7 +45,7 @@ export function middleware(request: NextRequest) {
       const response = NextResponse.next();
       response.cookies.delete("auth-token");
       
-      if (pathname.startsWith("/api/") && !isPublicApiRoute) {
+      if (pathname.startsWith("/api/") && !isPublicApiRoute && !isVideoRoute) {
         return NextResponse.json(
           { error: "Token inválido" },
           { status: 401 }
@@ -56,8 +63,8 @@ export function middleware(request: NextRequest) {
     // Token tem formato válido, deixar passar (validação completa nas rotas de API)
   } else {
     // Se não houver token, verificar o que fazer
-    // Se for uma rota de API (exceto públicas), retornar erro 401
-    if (pathname.startsWith("/api/") && !isPublicApiRoute) {
+    // Se for uma rota de API (exceto públicas e vídeos), retornar erro 401
+    if (pathname.startsWith("/api/") && !isPublicApiRoute && !isVideoRoute) {
       return NextResponse.json(
         { error: "Não autorizado" },
         { status: 401 }

@@ -239,7 +239,166 @@ seu-usuario ALL=(ALL) NOPASSWD: /sbin/reboot
 - ⚠️ Certifique-se de salvar qualquer trabalho antes de reiniciar
 - ✅ A funcionalidade só está disponível em sistemas Linux (Raspberry Pi)
 
-## 🖥️ Instalação no Raspberry Pi
+## 🖥️ Instalação no Raspberry Pi Model B 4 (64-bit)
+
+### Pré-requisitos
+
+1. **Raspberry Pi OS 64-bit** instalado e atualizado
+2. **Node.js 20.x** ou superior instalado
+3. **Docker** e **Docker Compose** instalados
+4. **PostgreSQL** rodando via Docker
+
+### Passo 1: Preparar o ambiente
+
+```bash
+# Atualizar sistema
+sudo apt update && sudo apt upgrade -y
+
+# Instalar Node.js 20.x (se não estiver instalado)
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -
+sudo apt install -y nodejs
+
+# Verificar instalação
+node --version
+npm --version
+```
+
+### Passo 2: Instalar o serviço PLAY
+
+```bash
+# Navegar para o diretório do projeto
+cd ~/PLAY  # ou o caminho onde você clonou o projeto
+
+# Instalar dependências
+npm install
+
+# Fazer build do projeto
+npm run build
+
+# Instalar o serviço systemd
+sudo bash scripts/install-service.sh
+```
+
+O script `install-service.sh` irá:
+- ✅ Detectar automaticamente o usuário atual
+- ✅ Encontrar os caminhos corretos do Node.js e npm
+- ✅ Configurar o serviço systemd corretamente
+- ✅ Habilitar o serviço para iniciar automaticamente
+
+### Passo 3: Configurar modo quiosque
+
+```bash
+# Configurar autostart do kiosk
+sudo bash scripts/kiosk-setup.sh
+```
+
+O script `kiosk-setup.sh` irá:
+- ✅ Detectar automaticamente o usuário atual
+- ✅ Detectar qual navegador Chromium está disponível
+- ✅ Instalar dependências necessárias (unclutter, xdotool)
+- ✅ Configurar múltiplos métodos de autostart (LXDE, XFCE, etc.)
+- ✅ Criar script de inicialização otimizado
+
+### Passo 4: Verificar e corrigir problemas
+
+Se houver problemas, execute o script de correção:
+
+```bash
+# Corrigir problemas comuns
+sudo bash scripts/fix-kiosk.sh
+```
+
+Este script irá:
+- ✅ Verificar e corrigir permissões
+- ✅ Verificar se o serviço PLAY está rodando
+- ✅ Verificar se o servidor está respondendo
+- ✅ Testar abertura do kiosk
+
+### Comandos úteis
+
+```bash
+# Gerenciar serviço PLAY
+sudo systemctl start play      # Iniciar
+sudo systemctl stop play       # Parar
+sudo systemctl restart play    # Reiniciar
+sudo systemctl status play     # Status
+sudo systemctl enable play      # Habilitar no boot
+sudo systemctl disable play    # Desabilitar no boot
+
+# Ver logs
+sudo journalctl -u play -f           # Logs em tempo real
+sudo journalctl -u play -n 50        # Últimas 50 linhas
+sudo journalctl -u play --since today # Logs de hoje
+
+# Testar servidor
+curl http://localhost:3000
+
+# Ver processos do Chromium
+ps aux | grep chromium
+
+# Matar processos do Chromium (se travar)
+pkill -f chromium
+```
+
+### Solução de Problemas
+
+#### Serviço não inicia
+
+```bash
+# Verificar logs de erro
+sudo journalctl -u play -n 100
+
+# Verificar se Node.js está no PATH
+which node
+which npm
+
+# Verificar permissões
+ls -la ~/PLAY
+```
+
+#### Kiosk não abre automaticamente
+
+```bash
+# Verificar se o script existe
+ls -la ~/start-kiosk.sh
+
+# Testar manualmente
+~/.start-kiosk.sh
+
+# Verificar autostart configurado
+cat ~/.config/autostart/play-kiosk.desktop
+cat /etc/xdg/lxsession/LXDE-pi/autostart
+```
+
+#### Chromium não encontrado
+
+```bash
+# Instalar Chromium manualmente
+sudo apt install -y chromium-browser
+
+# Ou
+sudo apt install -y chromium
+
+# Verificar qual está instalado
+which chromium-browser
+which chromium
+```
+
+#### Servidor não responde
+
+```bash
+# Verificar se a porta 3000 está em uso
+sudo netstat -tlnp | grep 3000
+
+# Verificar se o Docker está rodando
+sudo systemctl status docker
+docker ps
+
+# Verificar PostgreSQL
+docker-compose ps
+```
+
+## 🖥️ Instalação no Raspberry Pi (Versão Antiga)
 
 ### 1. Instalar o serviço systemd
 

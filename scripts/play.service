@@ -1,7 +1,7 @@
 [Unit]
 Description=PLAY - Sistema de Reprodução de Vídeos
-After=network.target postgresql.service
-Requires=postgresql.service
+After=network.target postgresql.service docker.service
+Wants=postgresql.service
 
 [Service]
 Type=simple
@@ -9,11 +9,15 @@ User=pi
 WorkingDirectory=/home/pi/PLAY
 Environment=NODE_ENV=production
 Environment=PORT=3000
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/bin
 ExecStart=/usr/bin/npm start
 Restart=always
 RestartSec=10
 StandardOutput=journal
 StandardError=journal
+
+# Timeout para permitir que o serviço inicie corretamente
+TimeoutStartSec=300
 
 [Install]
 WantedBy=multi-user.target
