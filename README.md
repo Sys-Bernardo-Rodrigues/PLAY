@@ -462,7 +462,25 @@ Isso irá:
 - Ocultar o cursor após inatividade
 - Desabilitar screensaver
 
-### 3. Remover unlock keyring do navegador
+### 3. Configurar permissões para reiniciar pelo app
+
+Para permitir que o sistema seja reiniciado através da interface web:
+
+```bash
+sudo bash scripts/setup-reboot-permissions.sh
+```
+
+Este script irá:
+- Configurar sudoers para permitir reboot sem senha
+- Criar script wrapper para reboot
+- Verificar e configurar permissões do sistema
+
+**Após executar, reinicie o serviço PLAY:**
+```bash
+sudo systemctl restart play
+```
+
+### 4. Remover unlock keyring do navegador
 
 Se o Chromium estiver pedindo senha do keyring ao iniciar, execute:
 
