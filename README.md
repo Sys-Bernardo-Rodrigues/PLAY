@@ -263,13 +263,27 @@ node --version
 npm --version
 ```
 
+**OU use o script automatizado:**
+
+```bash
+# Executar script de setup completo
+bash scripts/setup-raspberry.sh
+```
+
+Este script irá:
+- ✅ Instalar Node.js se necessário
+- ✅ Instalar todas as dependências do projeto (npm install)
+- ✅ Criar arquivo .env se não existir
+- ✅ Iniciar Docker e PostgreSQL
+- ✅ Inicializar o banco de dados
+
 ### Passo 2: Instalar o serviço PLAY
 
 ```bash
 # Navegar para o diretório do projeto
 cd ~/PLAY  # ou o caminho onde você clonou o projeto
 
-# Instalar dependências
+# Se ainda não executou o setup-raspberry.sh, instalar dependências
 npm install
 
 # Fazer build do projeto
