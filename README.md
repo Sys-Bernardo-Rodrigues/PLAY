@@ -486,6 +486,24 @@ sudo reboot
 
 O sistema irá iniciar automaticamente e abrir o player em modo quiosque.
 
+## 🗑️ Desinstalação
+
+Para remover completamente o sistema PLAY do Raspberry Pi:
+
+```bash
+sudo bash scripts/uninstall.sh
+```
+
+Este script irá:
+- Parar e remover serviços systemd (play.service, docker-compose-play.service)
+- Parar e remover containers Docker (PostgreSQL)
+- Remover volumes Docker (dados do banco de dados)
+- Remover scripts e configurações do sistema
+- Remover configurações de autostart do kiosk
+- Opcionalmente remover arquivos do projeto
+
+**⚠️ ATENÇÃO:** Este script remove TODOS os dados, incluindo vídeos e playlists. Faça backup antes se necessário.
+
 ## 📋 Funcionalidades Adicionais
 
 ### Exclusão de Vídeos
