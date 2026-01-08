@@ -1,7 +1,7 @@
 [Unit]
 Description=PLAY - Sistema de Reprodução de Vídeos
-After=network.target postgresql.service docker.service
-Wants=postgresql.service
+After=network.target docker.service docker-compose-play.service
+Wants=docker-compose-play.service
 
 [Service]
 Type=simple

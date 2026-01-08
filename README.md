@@ -414,7 +414,21 @@ docker-compose ps
 
 ## 🖥️ Instalação no Raspberry Pi (Versão Antiga)
 
-### 1. Instalar o serviço systemd
+### 1. Configurar Docker para iniciar automaticamente
+
+Execute o script para configurar Docker e containers:
+
+```bash
+sudo bash scripts/setup-docker-autostart.sh
+```
+
+Isso irá:
+- Habilitar Docker para iniciar no boot
+- Criar serviço systemd para iniciar containers automaticamente
+- Configurar restart automático dos containers
+- Atualizar dependências do serviço PLAY
+
+### 2. Instalar o serviço systemd
 
 Execute o script de instalação do serviço:
 
@@ -432,6 +446,7 @@ Isso irá:
 - Parar serviço: `sudo systemctl stop play`
 - Status do serviço: `sudo systemctl status play`
 - Ver logs: `sudo journalctl -u play -f`
+- Status Docker Compose: `sudo systemctl status docker-compose-play`
 
 ### 2. Configurar modo quiosque
 
@@ -446,6 +461,22 @@ Isso irá:
 - Configurar o sistema para iniciar o navegador em modo quiosque
 - Ocultar o cursor após inatividade
 - Desabilitar screensaver
+
+### 3. Remover unlock keyring do navegador
+
+Se o Chromium estiver pedindo senha do keyring ao iniciar, execute:
+
+```bash
+sudo bash scripts/remove-keyring.sh
+```
+
+Este script irá:
+- Remover keyring existente
+- Configurar variáveis de ambiente para desabilitar keyring
+- Atualizar autostart do Chromium
+- Configurar Chromium para não usar keyring
+
+**Após executar, faça logout/login ou reinicie o Raspberry Pi.**
 
 Após executar, reinicie o Raspberry Pi:
 
