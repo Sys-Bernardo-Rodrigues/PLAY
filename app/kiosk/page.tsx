@@ -267,6 +267,18 @@ export default function KioskPage() {
     }
   };
 
+  // Auto-reload em caso de erro após um tempo
+  useEffect(() => {
+    if (error && !loading) {
+      const timer = setTimeout(() => {
+        setLoading(true);
+        setError("");
+        fetchPlaylistForToday(0);
+      }, 10000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, loading]);
+
   const currentVideo = videos[currentVideoIndex];
 
   // Tela de loading
@@ -306,18 +318,6 @@ export default function KioskPage() {
       </div>
     );
   }
-
-  // Auto-reload em caso de erro após um tempo
-  useEffect(() => {
-    if (error && !loading) {
-      const timer = setTimeout(() => {
-        setLoading(true);
-        setError("");
-        fetchPlaylistForToday(0);
-      }, 10000);
-      return () => clearTimeout(timer);
-    }
-  }, [error, loading]);
 
   // Player em fullscreen
   return (
