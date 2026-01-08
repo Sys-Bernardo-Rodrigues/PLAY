@@ -12,6 +12,10 @@ export interface JWTPayload {
 }
 
 export function generateToken(userId: number, email: string): string {
+  if (!JWT_SECRET) {
+    throw new Error("JWT_SECRET não está definido");
+  }
+  // @ts-ignore - jsonwebtoken types issue with expiresIn
   return jwt.sign(
     { userId, email },
     JWT_SECRET,

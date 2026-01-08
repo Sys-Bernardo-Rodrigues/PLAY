@@ -470,10 +470,10 @@ export default function PlaylistDetailPage() {
 
                 <div className="bg-[#212121] rounded-xl p-4">
                   <h3 className="font-semibold text-white mb-2">
-                    {currentVideo?.video?.original_filename || currentVideo?.original_filename || "Sem nome"}
+                    {currentVideo?.video?.original_filename || "Sem nome"}
                   </h3>
                   <p className="text-sm text-gray-400">
-                    Tamanho: {currentVideo && formatFileSize(currentVideo.video?.file_size || currentVideo.file_size || 0)}
+                    Tamanho: {currentVideo && formatFileSize(currentVideo.video?.file_size || 0)}
                   </p>
                 </div>
               </div>

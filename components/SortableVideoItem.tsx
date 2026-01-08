@@ -92,12 +92,10 @@ export function SortableVideoItem({
               }`}
               title={
                 video.video?.original_filename ||
-                video.original_filename ||
                 "Sem nome"
               }
             >
               {video.video?.original_filename ||
-                video.original_filename ||
                 "Sem nome"}
             </p>
             <p
@@ -106,7 +104,7 @@ export function SortableVideoItem({
               }`}
             >
               {formatFileSize(
-                video.video?.file_size || video.file_size || 0
+                video.video?.file_size || 0
               )}
             </p>
           </div>

@@ -61,10 +61,10 @@ export async function getOrCreatePlayerSettings(
        RETURNING *`,
       [userId]
     );
-    settings = result.rows[0];
+    settings = result.rows[0] as PlayerSettings;
   }
 
-  return settings;
+  return settings as PlayerSettings;
 }
 
 export async function updatePlayerSettings(
