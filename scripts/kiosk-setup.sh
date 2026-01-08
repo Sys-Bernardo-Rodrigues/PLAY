@@ -71,15 +71,30 @@ cat > "$HOME_DIR/start-kiosk.sh" << EOF
 #!/bin/bash
 
 # Aguardar o serviço PLAY iniciar e o X server estar pronto
-sleep 15
+echo "Aguardando X server estar pronto..."
+sleep 10
 
-# Aguardar até que o serviço PLAY esteja respondendo
-for i in {1..30}; do
-    if curl -s http://localhost:3000 > /dev/null 2>&1; then
-        break
+# Aguardar até que o serviço PLAY esteja respondendo e a página kiosk esteja acessível
+echo "Aguardando servidor PLAY estar pronto..."
+MAX_WAIT=120  # 2 minutos máximo
+WAIT_TIME=0
+
+while [ \$WAIT_TIME -lt \$MAX_WAIT ]; do
+    # Verificar se a página principal responde
+    if curl -s -f http://localhost:3000 > /dev/null 2>&1; then
+        # Verificar se a página kiosk responde (pode retornar erro mas deve responder)
+        if curl -s -f http://localhost:3000/kiosk > /dev/null 2>&1 || curl -s http://localhost:3000/kiosk > /dev/null 2>&1; then
+            echo "Servidor está pronto!"
+            break
+        fi
     fi
-    sleep 2
+    sleep 3
+    WAIT_TIME=\$((WAIT_TIME + 3))
+    echo "Aguardando servidor... (\$WAIT_TIME/\$MAX_WAIT segundos)"
 done
+
+# Aguardar mais um pouco para garantir que está totalmente estável
+sleep 5
 
 # Desabilitar screensaver e power management
 export DISPLAY=:0
@@ -91,6 +106,7 @@ xset s noblank 2>/dev/null || true
 unclutter -idle 0.5 -root &
 
 # Abrir navegador em modo quiosque na página dedicada
+echo "Abrindo navegador em modo kiosk..."
 $CHROMIUM_CMD \\
   --kiosk \\
   --disable-infobars \\
@@ -100,6 +116,15 @@ $CHROMIUM_CMD \\
   --autoplay-policy=no-user-gesture-required \\
   --disable-features=TranslateUI \\
   --disable-ipc-flooding-protection \\
+  --disable-background-networking \\
+  --disable-default-apps \\
+  --disable-sync \\
+  --no-first-run \\
+  --disable-extensions \\
+  --disable-plugins-discovery \\
+  --disable-preconnect \\
+  --media-cache-size=0 \\
+  --disk-cache-size=0 \\
   --app=http://localhost:3000/kiosk &
 
 # Manter script rodando
