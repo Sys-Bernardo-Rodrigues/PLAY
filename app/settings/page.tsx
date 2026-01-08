@@ -41,6 +41,10 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [rebooting, setRebooting] = useState(false);
+  const [rebootError, setRebootError] = useState("");
+  const [showRebootConfirm, setShowRebootConfirm] = useState(false);
 
   const userEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@test.com";
 
@@ -127,9 +131,9 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0f0f0f]">
-        <Header />
-        <Sidebar />
-        <main className="ml-64 pt-14 p-8">
+        <Header onMenuToggle={() => setIsMenuOpen(!isMenuOpen)} isMenuOpen={isMenuOpen} />
+        <Sidebar isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+        <main className="lg:ml-64 pt-14 p-4 sm:p-6 lg:p-8">
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
             <p className="text-gray-400">Carregando...</p>
@@ -142,9 +146,9 @@ export default function SettingsPage() {
   if (!settings) {
     return (
       <div className="min-h-screen bg-[#0f0f0f]">
-        <Header />
-        <Sidebar />
-        <main className="ml-64 pt-14 p-8">
+        <Header onMenuToggle={() => setIsMenuOpen(!isMenuOpen)} isMenuOpen={isMenuOpen} />
+        <Sidebar isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+        <main className="lg:ml-64 pt-14 p-4 sm:p-6 lg:p-8">
           <div className="bg-red-900/50 border border-red-800 text-red-200 px-4 py-3 rounded-lg">
             Erro ao carregar configurações
           </div>
@@ -155,12 +159,12 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen bg-[#0f0f0f]">
-      <Header />
-      <Sidebar />
+      <Header onMenuToggle={() => setIsMenuOpen(!isMenuOpen)} isMenuOpen={isMenuOpen} />
+      <Sidebar isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
       
-      <main className="ml-64 pt-14 p-8">
+      <main className="lg:ml-64 pt-14 p-4 sm:p-6 lg:p-8">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold text-white mb-8">Configurações do Player</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-6 sm:mb-8">Configurações do Player</h1>
 
           {error && (
             <div className="bg-red-900/50 border border-red-800 text-red-200 px-4 py-3 rounded-lg mb-6">
@@ -198,8 +202,8 @@ export default function SettingsPage() {
             </div>
 
             {/* Configuração de Loop */}
-            <div className="bg-[#212121] rounded-xl p-6 border border-gray-800">
-              <h2 className="text-xl font-semibold text-white mb-4">Reprodução</h2>
+            <div className="bg-[#212121] rounded-xl p-4 sm:p-6 border border-gray-800">
+              <h2 className="text-lg sm:text-xl font-semibold text-white mb-4">Reprodução</h2>
               <div className="flex items-center space-x-4">
                 <label className="flex items-center cursor-pointer">
                   <input
@@ -304,9 +308,95 @@ export default function SettingsPage() {
                 {saving ? "Salvando..." : "Salvar Configurações"}
               </button>
             </div>
+
+            {/* Seção de Sistema */}
+            <div className="bg-[#212121] rounded-xl p-4 sm:p-6 border border-gray-800">
+              <h2 className="text-lg sm:text-xl font-semibold text-white mb-4">Sistema</h2>
+              
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-sm font-medium text-gray-300 mb-2">Reiniciar Raspberry Pi</h3>
+                  <p className="text-xs text-gray-400 mb-4">
+                    Reinicie o sistema do Raspberry Pi. Esta ação desconectará todos os usuários e reiniciará o servidor.
+                  </p>
+                  
+                  {rebootError && (
+                    <div className="bg-red-900/50 border border-red-800 text-red-200 px-4 py-3 rounded-lg mb-4 text-sm">
+                      {rebootError}
+                    </div>
+                  )}
+
+                  <button
+                    onClick={() => setShowRebootConfirm(true)}
+                    disabled={rebooting}
+                    className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+                  >
+                    {rebooting ? "Reiniciando..." : "🔄 Reiniciar Sistema"}
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </main>
+
+      {/* Modal de Confirmação de Reinicialização */}
+      {showRebootConfirm && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#212121] rounded-xl p-4 sm:p-6 w-full max-w-md border border-gray-800">
+            <h2 className="text-xl sm:text-2xl font-bold text-white mb-4">Confirmar Reinicialização</h2>
+            <p className="text-sm text-gray-300 mb-6">
+              Tem certeza que deseja reiniciar o Raspberry Pi? O sistema será desconectado e reiniciado. 
+              Isso pode levar alguns minutos.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={async () => {
+                  setShowRebootConfirm(false);
+                  setRebootError("");
+                  setRebooting(true);
+                  
+                  try {
+                    const response = await fetch("/api/system/reboot", {
+                      method: "POST",
+                      credentials: "include",
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                      // Mostrar mensagem de sucesso
+                      setTimeout(() => {
+                        alert("Sistema será reiniciado em breve. A página será desconectada.");
+                      }, 1000);
+                    } else {
+                      setRebootError(data.error || "Erro ao reiniciar o sistema");
+                      setRebooting(false);
+                    }
+                  } catch (err) {
+                    setRebootError("Erro ao conectar com o servidor");
+                    setRebooting(false);
+                  }
+                }}
+                disabled={rebooting}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {rebooting ? "Reiniciando..." : "Sim, Reiniciar"}
+              </button>
+              <button
+                onClick={() => {
+                  setShowRebootConfirm(false);
+                  setRebootError("");
+                }}
+                disabled={rebooting}
+                className="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

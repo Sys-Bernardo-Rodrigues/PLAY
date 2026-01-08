@@ -328,45 +328,46 @@ export default function PlayerPage() {
     <main className={`min-h-screen bg-[#0f0f0f] text-white ${isKioskMode ? "fixed inset-0 z-50" : ""}`}>
       {/* Header */}
       {!isKioskMode && (
-        <header className="bg-[#212121] border-b border-gray-800 px-6 py-4 sticky top-0 z-50">
-          <div className="max-w-7xl mx-auto flex justify-between items-center">
-            <div className="flex items-center gap-4">
-              <Link href="/" className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-purple-800 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+        <header className="bg-[#212121] border-b border-gray-800 px-3 sm:px-6 py-3 sm:py-4 sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+            <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
+              <Link href="/" className="flex items-center gap-2 flex-shrink-0">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-purple-600 to-purple-800 rounded-lg flex items-center justify-center">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                     <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <span className="text-white font-bold text-xl">PLAY</span>
+                <span className="text-white font-bold text-lg sm:text-xl">PLAY</span>
               </Link>
-              <div className="h-6 w-px bg-gray-700"></div>
-              <div>
-                <h1 className="text-lg font-semibold text-white">Player Automático</h1>
-                <p className="text-sm text-gray-400">
+              <div className="hidden sm:block h-6 w-px bg-gray-700"></div>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-base sm:text-lg font-semibold text-white truncate">Player Automático</h1>
+                <p className="text-xs sm:text-sm text-gray-400 truncate">
                   {getCurrentDay()} - {playlist?.name || "Carregando..."}
                 </p>
               </div>
             </div>
-            <div className="flex gap-4">
+            <div className="flex gap-2 sm:gap-4 w-full sm:w-auto">
               <button
                 onClick={enterKioskMode}
-                className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-4 py-2 rounded-lg transition duration-200 flex items-center gap-2"
+                className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-3 sm:px-4 py-2 rounded-lg transition duration-200 flex items-center gap-2 text-sm sm:text-base flex-1 sm:flex-initial justify-center"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
                 </svg>
-                Modo Quiosque
+                <span className="hidden sm:inline">Modo Quiosque</span>
+                <span className="sm:hidden">Quiosque</span>
               </button>
               <Link
                 href="/"
-                className="text-gray-400 hover:text-white transition-colors text-sm px-4 py-2 rounded-lg hover:bg-gray-800"
+                className="text-gray-400 hover:text-white transition-colors text-xs sm:text-sm px-3 sm:px-4 py-2 rounded-lg hover:bg-gray-800"
               >
                 Login
               </Link>
               <Link
                 href="/dashboard"
-                className="text-gray-400 hover:text-white transition-colors text-sm px-4 py-2 rounded-lg hover:bg-gray-800"
+                className="text-gray-400 hover:text-white transition-colors text-xs sm:text-sm px-3 sm:px-4 py-2 rounded-lg hover:bg-gray-800"
               >
                 Dashboard
               </Link>
@@ -426,7 +427,7 @@ export default function PlayerPage() {
         </div>
       )}
 
-      <div className={`${isKioskMode ? "hidden" : "max-w-7xl mx-auto px-6 py-8"}`}>
+      <div className={`${isKioskMode ? "hidden" : "max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8"}`}>
         {loading && (
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-center">
@@ -483,13 +484,13 @@ export default function PlayerPage() {
               </div>
 
               {/* Informações do Vídeo */}
-              <div className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h2 className="text-xl font-semibold mb-2 text-white">
+              <div className="p-4 sm:p-6">
+                <div className="flex items-start justify-between mb-4 flex-col sm:flex-row gap-2 sm:gap-0">
+                  <div className="flex-1 min-w-0">
+                    <h2 className="text-lg sm:text-xl font-semibold mb-2 text-white truncate">
                       {currentVideo?.video?.original_filename || "Carregando..."}
                     </h2>
-                    <div className="flex items-center gap-4 text-sm text-gray-400">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-400">
                       <span>
                         {currentVideoIndex + 1} de {videos.length}
                       </span>
@@ -533,11 +534,11 @@ export default function PlayerPage() {
             </div>
 
             {/* Lista de Vídeos */}
-            <div className="bg-[#212121] rounded-xl p-6">
-              <h3 className="text-lg font-semibold mb-4 text-white">
+            <div className="bg-[#212121] rounded-xl p-4 sm:p-6">
+              <h3 className="text-base sm:text-lg font-semibold mb-4 text-white">
                 Próximos Vídeos ({videos.length - currentVideoIndex - 1} restantes)
               </h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 max-h-64 overflow-y-auto scrollbar-hide">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 max-h-64 overflow-y-auto scrollbar-hide">
                 {videos.slice(currentVideoIndex + 1).map((video) => (
                   <div
                     key={video.id}

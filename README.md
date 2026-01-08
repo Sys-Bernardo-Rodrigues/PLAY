@@ -192,6 +192,53 @@ O sistema inclui um gerenciador completo de playlists para organizar e reproduzi
 - [x] Reordenação de vídeos na playlist (drag & drop)
 
 
+## 🔄 Reinicialização do Sistema
+
+O sistema inclui uma funcionalidade para reiniciar o Raspberry Pi diretamente pela interface web.
+
+### Configuração de Permissões
+
+Para que a reinicialização funcione, o processo Next.js precisa ter permissões para executar o comando `reboot`. Existem algumas opções:
+
+#### Opção 1: Adicionar usuário ao grupo sudo (Recomendado)
+
+```bash
+# Adicionar o usuário que executa o Next.js ao grupo sudo
+sudo usermod -aG sudo $USER
+
+# Permitir que o grupo sudo execute reboot sem senha
+echo "%sudo ALL=(ALL) NOPASSWD: /sbin/reboot" | sudo tee /etc/sudoers.d/reboot
+```
+
+#### Opção 2: Configurar sudoers para o usuário específico
+
+```bash
+# Editar sudoers
+sudo visudo
+
+# Adicionar a linha (substitua 'seu-usuario' pelo usuário que executa o Next.js):
+seu-usuario ALL=(ALL) NOPASSWD: /sbin/reboot
+```
+
+#### Opção 3: Executar Next.js como root (Não recomendado para produção)
+
+⚠️ **Atenção**: Executar como root não é recomendado por questões de segurança.
+
+### Como Usar
+
+1. Acesse a página de **Configurações** no sistema
+2. Role até a seção **"Sistema"**
+3. Clique no botão **"🔄 Reiniciar Sistema"**
+4. Confirme a ação no modal de confirmação
+5. O sistema será reiniciado em alguns segundos
+
+### Notas Importantes
+
+- ⚠️ A reinicialização desconectará todos os usuários conectados
+- ⚠️ O sistema ficará offline por alguns minutos durante o reinício
+- ⚠️ Certifique-se de salvar qualquer trabalho antes de reiniciar
+- ✅ A funcionalidade só está disponível em sistemas Linux (Raspberry Pi)
+
 ## 🖥️ Instalação no Raspberry Pi
 
 ### 1. Instalar o serviço systemd

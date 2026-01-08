@@ -13,6 +13,7 @@ export default function UploadPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const userEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@test.com";
 
@@ -113,14 +114,14 @@ export default function UploadPage() {
 
   return (
     <div className="min-h-screen bg-[#0f0f0f]">
-      <Header />
-      <Sidebar />
+      <Header onMenuToggle={() => setIsMenuOpen(!isMenuOpen)} isMenuOpen={isMenuOpen} />
+      <Sidebar isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
       
-      <main className="ml-64 pt-14 p-8">
+      <main className="lg:ml-64 pt-14 p-4 sm:p-6 lg:p-8">
         <div className="max-w-3xl mx-auto">
-          <h1 className="text-3xl font-bold text-white mb-8">Upload de Vídeo</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-6 sm:mb-8">Upload de Vídeo</h1>
 
-          <div className="bg-[#212121] rounded-xl p-8 border border-gray-800">
+          <div className="bg-[#212121] rounded-xl p-4 sm:p-6 lg:p-8 border border-gray-800">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label
@@ -131,16 +132,16 @@ export default function UploadPage() {
                 </label>
                 <div
                   onClick={() => !uploading && fileInputRef.current?.click()}
-                  className="mt-1 flex justify-center px-6 pt-12 pb-12 border-2 border-dashed border-gray-700 rounded-lg hover:border-purple-600 transition-colors cursor-pointer bg-[#0f0f0f]"
+                  className="mt-1 flex justify-center px-4 sm:px-6 pt-8 sm:pt-12 pb-8 sm:pb-12 border-2 border-dashed border-gray-700 rounded-lg hover:border-purple-600 transition-colors cursor-pointer bg-[#0f0f0f]"
                 >
-                  <div className="space-y-4 text-center">
-                    <div className="mx-auto w-16 h-16 bg-purple-600/20 rounded-full flex items-center justify-center">
-                      <svg className="w-8 h-8 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="space-y-3 sm:space-y-4 text-center">
+                    <div className="mx-auto w-12 h-12 sm:w-16 sm:h-16 bg-purple-600/20 rounded-full flex items-center justify-center">
+                      <svg className="w-6 h-6 sm:w-8 sm:h-8 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                       </svg>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-300">
+                      <p className="text-xs sm:text-sm text-gray-300">
                         <span className="text-purple-400 font-medium">Clique para selecionar</span> ou arraste e solte
                       </p>
                       <p className="text-xs text-gray-500 mt-2">MP4, WebM, OGG até 100MB</p>

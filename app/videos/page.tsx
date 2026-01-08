@@ -20,6 +20,7 @@ export default function VideosPage() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const userEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@test.com";
 
@@ -90,18 +91,18 @@ export default function VideosPage() {
 
   return (
     <div className="min-h-screen bg-[#0f0f0f]">
-      <Header />
-      <Sidebar />
+      <Header onMenuToggle={() => setIsMenuOpen(!isMenuOpen)} isMenuOpen={isMenuOpen} />
+      <Sidebar isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
       
-      <main className="ml-64 pt-14 p-8">
+      <main className="lg:ml-64 pt-14 p-4 sm:p-6 lg:p-8">
         <div className="max-w-7xl mx-auto">
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-white">Meus Vídeos</h1>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">Meus Vídeos</h1>
             <Link
               href="/upload"
-              className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 flex items-center gap-2"
+              className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 sm:px-6 rounded-lg transition duration-200 flex items-center gap-2 text-sm sm:text-base w-full sm:w-auto justify-center"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
               Novo Upload
@@ -134,7 +135,7 @@ export default function VideosPage() {
           )}
 
           {!loading && videos.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {videos.map((video) => (
                 <div
                   key={video.id}

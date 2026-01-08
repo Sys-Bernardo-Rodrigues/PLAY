@@ -21,6 +21,7 @@ export default function PlaylistsPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newPlaylistName, setNewPlaylistName] = useState("");
   const [newPlaylistDescription, setNewPlaylistDescription] = useState("");
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const userEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@test.com";
 
@@ -94,18 +95,18 @@ export default function PlaylistsPage() {
 
   return (
     <div className="min-h-screen bg-[#0f0f0f]">
-      <Header />
-      <Sidebar />
+      <Header onMenuToggle={() => setIsMenuOpen(!isMenuOpen)} isMenuOpen={isMenuOpen} />
+      <Sidebar isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
       
-      <main className="ml-64 pt-14 p-8">
+      <main className="lg:ml-64 pt-14 p-4 sm:p-6 lg:p-8">
         <div className="max-w-7xl mx-auto">
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-white">Minhas Playlists</h1>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">Minhas Playlists</h1>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200 flex items-center gap-2"
+              className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 sm:px-6 rounded-lg transition duration-200 flex items-center gap-2 text-sm sm:text-base w-full sm:w-auto justify-center"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
               Nova Playlist
@@ -138,7 +139,7 @@ export default function PlaylistsPage() {
           )}
 
           {!loading && playlists.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {playlists.map((playlist) => (
                 <Link
                   key={playlist.id}
@@ -175,8 +176,8 @@ export default function PlaylistsPage() {
 
           {showCreateModal && (
             <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-              <div className="bg-[#212121] rounded-xl p-6 w-full max-w-md border border-gray-800">
-                <h2 className="text-2xl font-bold text-white mb-4">Nova Playlist</h2>
+              <div className="bg-[#212121] rounded-xl p-4 sm:p-6 w-full max-w-md border border-gray-800 max-h-[90vh] overflow-y-auto">
+                <h2 className="text-xl sm:text-2xl font-bold text-white mb-4">Nova Playlist</h2>
                 <form onSubmit={handleCreatePlaylist} className="space-y-4">
                   <div>
                     <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">

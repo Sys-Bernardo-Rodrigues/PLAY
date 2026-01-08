@@ -64,6 +64,7 @@ export default function PlaylistDetailPage() {
   const [loadingVideos, setLoadingVideos] = useState(false);
   const [loopPlaylist, setLoopPlaylist] = useState(false);
   const [isReordering, setIsReordering] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const userEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || "admin@test.com";
 
@@ -345,12 +346,12 @@ export default function PlaylistDetailPage() {
 
   return (
     <div className="min-h-screen bg-[#0f0f0f]">
-      <Header />
-      <Sidebar />
+      <Header onMenuToggle={() => setIsMenuOpen(!isMenuOpen)} isMenuOpen={isMenuOpen} />
+      <Sidebar isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
       
-      <main className="ml-64 pt-14 p-8">
+      <main className="lg:ml-64 pt-14 p-4 sm:p-6 lg:p-8">
         <div className="max-w-7xl mx-auto">
-          <div className="flex justify-between items-start mb-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
             <div>
               <Link
                 href="/playlists"
@@ -478,8 +479,8 @@ export default function PlaylistDetailPage() {
               </div>
 
               {/* Lista de Vídeos com Drag & Drop */}
-              <div className="lg:col-span-1">
-                <div className="bg-[#212121] rounded-xl p-4 sticky top-20 max-h-[calc(100vh-8rem)] overflow-y-auto scrollbar-hide">
+              <div className="lg:col-span-1 order-1 lg:order-2">
+                <div className="bg-[#212121] rounded-xl p-3 sm:p-4 sticky top-20 max-h-[calc(100vh-8rem)] overflow-y-auto scrollbar-hide">
                   <h3 className="text-lg font-semibold text-white mb-4">
                     Vídeos ({videos.length})
                   </h3>
@@ -522,14 +523,14 @@ export default function PlaylistDetailPage() {
 
           {showAddVideoModal && (
             <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-              <div className="bg-[#212121] rounded-xl p-6 w-full max-w-4xl max-h-[80vh] overflow-y-auto border border-gray-800">
-                <h2 className="text-2xl font-bold text-white mb-4">Adicionar Vídeo à Playlist</h2>
+              <div className="bg-[#212121] rounded-xl p-4 sm:p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto border border-gray-800">
+                <h2 className="text-xl sm:text-2xl font-bold text-white mb-4">Adicionar Vídeo à Playlist</h2>
                 {loadingVideos ? (
                   <p className="text-gray-400">Carregando vídeos...</p>
                 ) : availableVideos.length === 0 ? (
                   <p className="text-gray-400">Nenhum vídeo disponível para adicionar.</p>
                 ) : (
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                     {availableVideos.map((video) => (
                       <div
                         key={video.id}
@@ -565,8 +566,8 @@ export default function PlaylistDetailPage() {
 
           {showEditModal && (
             <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-              <div className="bg-[#212121] rounded-xl p-6 w-full max-w-md border border-gray-800">
-                <h2 className="text-2xl font-bold text-white mb-4">Editar Playlist</h2>
+              <div className="bg-[#212121] rounded-xl p-4 sm:p-6 w-full max-w-md border border-gray-800 max-h-[90vh] overflow-y-auto">
+                <h2 className="text-xl sm:text-2xl font-bold text-white mb-4">Editar Playlist</h2>
                 <form onSubmit={handleEditPlaylist} className="space-y-4">
                   <div>
                     <label htmlFor="editName" className="block text-sm font-medium text-gray-300 mb-2">
