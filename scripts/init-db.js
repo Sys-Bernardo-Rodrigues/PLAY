@@ -10,11 +10,52 @@ const pool = new Pool({
   database: process.env.DB_NAME || "play_db",
   user: process.env.DB_USER || "postgres",
   password: process.env.DB_PASSWORD || "postgres",
+  connectionTimeoutMillis: 10000, // 10 segundos
+  idleTimeoutMillis: 30000,
+  max: 10,
 });
 
 async function initDatabase() {
+  let client;
   try {
     console.log("Conectando ao banco de dados...");
+    
+    // Testar conexão primeiro com retry
+    let connected = false;
+    const maxRetries = 5;
+    for (let i = 0; i < maxRetries; i++) {
+      try {
+        client = await pool.connect();
+        await client.query("SELECT 1");
+        client.release();
+        console.log("✅ Conexão estabelecida com sucesso");
+        connected = true;
+        break;
+      } catch (connError) {
+        if (client) {
+          try {
+            client.release();
+          } catch (e) {
+            // Ignorar erro ao liberar
+          }
+        }
+        if (i < maxRetries - 1) {
+          console.log(`   Tentativa ${i + 1} de ${maxRetries} falhou, tentando novamente em 2 segundos...`);
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        } else {
+          console.error("❌ Erro ao conectar ao banco de dados após", maxRetries, "tentativas:", connError.message);
+          console.error("   Código do erro:", connError.code);
+          throw connError;
+        }
+      }
+    }
+    
+    if (!connected) {
+      throw new Error("Não foi possível estabelecer conexão com o banco de dados");
+    }
+    
+    // Aguardar um pouco para garantir estabilidade
+    await new Promise(resolve => setTimeout(resolve, 1000));
     
     // Criar tabela de usuários
     await pool.query(`
