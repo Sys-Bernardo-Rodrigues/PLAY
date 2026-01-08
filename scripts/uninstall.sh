@@ -120,7 +120,37 @@ echo "🧹 Removendo scripts do sistema..."
 rm -f /usr/local/bin/docker-compose-play-wrapper.sh
 echo "✅ Scripts removidos"
 
-# 4. Remover arquivos de autostart do kiosk
+# 4. Parar e remover processos do kiosk
+echo ""
+echo "🖥️  Parando processos do kiosk..."
+
+# Matar processos do Chromium relacionados ao kiosk
+echo "   Parando processos do Chromium..."
+pkill -f "chromium.*kiosk" 2>/dev/null || true
+pkill -f "chromium-browser.*kiosk" 2>/dev/null || true
+pkill -f "chromium.*localhost:3000/kiosk" 2>/dev/null || true
+pkill -f "chromium-browser.*localhost:3000/kiosk" 2>/dev/null || true
+sleep 2
+
+# Matar todos os processos do Chromium (se ainda estiverem rodando)
+if pgrep -f chromium > /dev/null; then
+    echo "   Parando todos os processos do Chromium..."
+    pkill -9 chromium 2>/dev/null || true
+    pkill -9 chromium-browser 2>/dev/null || true
+    sleep 1
+fi
+
+# Matar processos do unclutter (cursor)
+echo "   Parando processos do unclutter..."
+pkill -f unclutter 2>/dev/null || true
+
+# Matar processos do xdotool
+echo "   Parando processos do xdotool..."
+pkill -f xdotool 2>/dev/null || true
+
+echo "✅ Processos do kiosk parados"
+
+# 5. Remover arquivos de autostart do kiosk
 echo ""
 echo "🖥️  Removendo configurações de autostart do kiosk..."
 
@@ -140,20 +170,51 @@ fi
 AUTOSTART_FILES=(
     "/etc/xdg/lxsession/LXDE-pi/autostart"
     "/etc/xdg/lxsession/LXDE/autostart"
+    "/home/$CURRENT_USER/.config/lxsession/LXDE-pi/autostart"
+    "/home/$CURRENT_USER/.config/lxsession/LXDE/autostart"
 )
 
 for file in "${AUTOSTART_FILES[@]}"; do
     if [ -f "$file" ]; then
-        if grep -q "start-kiosk.sh\|play-kiosk" "$file" 2>/dev/null; then
+        if grep -q "start-kiosk.sh\|play-kiosk\|chromium.*kiosk\|chromium-browser.*kiosk" "$file" 2>/dev/null; then
             echo "   Removendo entradas de $file..."
             sed -i '/start-kiosk.sh/d' "$file"
             sed -i '/play-kiosk/d' "$file"
+            sed -i '/chromium.*kiosk/d' "$file"
+            sed -i '/chromium-browser.*kiosk/d' "$file"
+            sed -i '/localhost:3000\/kiosk/d' "$file"
             echo "✅ Entradas removidas de $file"
         fi
     fi
 done
 
-# 5. Remover configurações de keyring (opcional)
+# Remover diretório de autostart se estiver vazio
+if [ -d "$HOME_DIR/.config/autostart" ]; then
+    if [ -z "$(ls -A "$HOME_DIR/.config/autostart" 2>/dev/null)" ]; then
+        rmdir "$HOME_DIR/.config/autostart" 2>/dev/null || true
+    fi
+fi
+
+# Remover configurações de screensaver e power management
+echo ""
+echo "🔧 Removendo configurações de screensaver e power management..."
+
+# Remover configurações do xset (se existirem em scripts)
+if [ -f "$HOME_DIR/.xprofile" ]; then
+    sed -i '/xset.*off/d' "$HOME_DIR/.xprofile" 2>/dev/null || true
+    sed -i '/xset.*-dpms/d' "$HOME_DIR/.xprofile" 2>/dev/null || true
+    sed -i '/xset.*noblank/d' "$HOME_DIR/.xprofile" 2>/dev/null || true
+fi
+
+if [ -f "$HOME_DIR/.xsessionrc" ]; then
+    sed -i '/xset.*off/d' "$HOME_DIR/.xsessionrc" 2>/dev/null || true
+    sed -i '/xset.*-dpms/d' "$HOME_DIR/.xsessionrc" 2>/dev/null || true
+    sed -i '/xset.*noblank/d' "$HOME_DIR/.xsessionrc" 2>/dev/null || true
+fi
+
+echo "✅ Configurações de kiosk removidas"
+
+# 6. Remover configurações de keyring (opcional)
 echo ""
 read -p "Deseja remover também as configurações de keyring? (s/N): " -n 1 -r
 echo
@@ -184,7 +245,7 @@ if [[ $REPLY =~ ^[Ss]$ ]]; then
     echo "✅ Configurações de keyring removidas"
 fi
 
-# 6. Perguntar sobre remover arquivos do projeto
+# 7. Perguntar sobre remover arquivos do projeto
 echo ""
 echo "📁 Arquivos do projeto: $PROJECT_DIR"
 read -p "Deseja remover TODOS os arquivos do projeto? (s/N): " -n 1 -r
@@ -202,7 +263,29 @@ else
     echo "   Você pode removê-los manualmente se desejar"
 fi
 
-# 7. Resumo
+# 8. Limpar processos órfãos e cache
+echo ""
+echo "🧹 Limpando processos órfãos e cache..."
+
+# Limpar processos do Chromium que possam ter ficado
+if pgrep -f chromium > /dev/null; then
+    echo "   Removendo processos órfãos do Chromium..."
+    pkill -9 -f chromium 2>/dev/null || true
+fi
+
+# Limpar cache do Chromium (opcional)
+read -p "Deseja remover também o cache do Chromium? (s/N): " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Ss]$ ]]; then
+    echo "   Removendo cache do Chromium..."
+    rm -rf "$HOME_DIR/.cache/chromium" 2>/dev/null || true
+    rm -rf "$HOME_DIR/.cache/chromium-browser" 2>/dev/null || true
+    rm -rf "$HOME_DIR/.config/chromium" 2>/dev/null || true
+    rm -rf "$HOME_DIR/.config/chromium-browser" 2>/dev/null || true
+    echo "✅ Cache do Chromium removido"
+fi
+
+# 9. Resumo
 echo ""
 echo "✅ ✅ ✅ Remoção concluída! ✅ ✅ ✅"
 echo ""
@@ -211,7 +294,12 @@ echo "  ✅ Serviços systemd (play.service, docker-compose-play.service)"
 echo "  ✅ Containers Docker"
 echo "  ✅ Volumes Docker (dados do banco)"
 echo "  ✅ Scripts do sistema"
+echo "  ✅ Processos do kiosk (Chromium, unclutter, xdotool)"
 echo "  ✅ Configurações de autostart do kiosk"
+echo "  ✅ Configurações de screensaver e power management"
+if [[ $REPLY =~ ^[Ss]$ ]]; then
+    echo "  ✅ Cache do Chromium"
+fi
 if [[ $REPLY =~ ^[Ss]$ ]]; then
     echo "  ✅ Arquivos do projeto"
 fi
